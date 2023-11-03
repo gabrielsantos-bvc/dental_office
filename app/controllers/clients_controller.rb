@@ -8,19 +8,39 @@ class ClientsController < ApplicationController
     render json: @clients
   end
 
+  def login
+
+  end
+
   # GET /clients/1
   def show
     render json: @client
   end
 
+  def bookings
+    @bookings = Booking.where(client_id: params[:id])
+    render json: @bookings
+  end
+
   # POST /clients
   def create
-    @client = Client.new(client_params)
+    hash = JWT.decode(params[:token], "group1_bvc")[0]
+    @client = Client.new(name: hash["name"], email: hash["email"], password: hash["password"])
 
     if @client.save
       render json: @client, status: :created, location: @client
     else
       render json: @client.errors, status: :unprocessable_entity
+    end
+  end
+
+  def login
+    hash = JWT.decode(params[:token], "group1_bvc")[0]
+    @client = Client.find_by(email: hash["email"], password: hash["password"])
+    if @client
+      render json: @client
+    else
+      render json: {message: "Invalid email or password"}, status: :unauthorized
     end
   end
 
@@ -50,6 +70,6 @@ class ClientsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def client_params
-      params.require(:client).permit(:name, :address, :phone, :email)
+      params.require(:client).permit(:name, :address, :phone, :email, :password, :medical_history, :insurance_provider, :insurance_number, :dental_concerns)
     end
 end

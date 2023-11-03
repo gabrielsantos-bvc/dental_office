@@ -53,7 +53,7 @@ class OfficesController < ApplicationController
     end
   end
 
-  def bookeds
+  def bookings
     render json: @office.bookings
   end
 
