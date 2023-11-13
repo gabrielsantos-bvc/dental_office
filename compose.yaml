@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - 3000:3000
+    environment:
+      DATABASE_URL: 'postgres://postgres:examplePassw0rd@postgres/'
+      SECRET_KEY_BASE: abcdefg
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: examplePassw0rd
