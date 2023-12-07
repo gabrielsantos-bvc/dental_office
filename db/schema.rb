@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_11_03_201502) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_07_052410) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,7 +21,9 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_03_201502) do
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "dentist_id"
     t.index ["client_id"], name: "index_bookings_on_client_id"
+    t.index ["dentist_id"], name: "index_bookings_on_dentist_id"
     t.index ["office_id"], name: "index_bookings_on_office_id"
   end
 
@@ -55,5 +57,6 @@ ActiveRecord::Schema[7.1].define(version: 2023_11_03_201502) do
   end
 
   add_foreign_key "bookings", "clients"
+  add_foreign_key "bookings", "dentists"
   add_foreign_key "bookings", "offices"
 end

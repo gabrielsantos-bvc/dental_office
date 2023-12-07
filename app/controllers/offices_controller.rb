@@ -1,5 +1,5 @@
 class OfficesController < ApplicationController
-  before_action :set_office, only: %i[ show update destroy bookeds ]
+  before_action :set_office, only: %i[ show update destroy booking bookings update_booking ]
 
   # GET /offices
   def index
@@ -45,9 +45,19 @@ class OfficesController < ApplicationController
     @booking = Booking.new(office_id: params[:id],
                               client_id: params[:client_id],
                               booked_time: params[:booked_time],
-                              status: params[:status])
+                              status: "PENDING",
+                              dentist_id: params[:dentist_id])
     if @booking.save
       render json: @booking, status: :created
+    else
+      render json: @booking.errors, status: :unprocessable_entity
+    end
+  end
+
+  def update_booking
+    @booking = Booking.find(params[:booking_id])
+    if @booking.update(status: params[:status], booked_time: params[:booked_time])
+      render json: @booking, status: :ok
     else
       render json: @booking.errors, status: :unprocessable_entity
     end

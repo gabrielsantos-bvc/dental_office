@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     member do
       post :booking
       get :bookings
+      post :update_booking
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

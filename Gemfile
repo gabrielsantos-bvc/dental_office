@@ -47,3 +47,4 @@ group :development do
   gem "pry-rails"
 end
 gem 'jwt'
+gem 'rack-cors'

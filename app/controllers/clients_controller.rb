@@ -24,8 +24,7 @@ class ClientsController < ApplicationController
 
   # POST /clients
   def create
-    hash = JWT.decode(params[:token], "group1_bvc")[0]
-    @client = Client.new(name: hash["name"], email: hash["email"], password: hash["password"])
+    @client = Client.new(name: params[:name], email: params[:email], password: params[:password])
 
     if @client.save
       render json: @client, status: :created, location: @client
@@ -35,11 +34,11 @@ class ClientsController < ApplicationController
   end
 
   def login
-    hash = JWT.decode(params[:token], "group1_bvc")[0]
-    @client = Client.find_by(email: hash["email"], password: hash["password"])
-    return_hash = @client.to_json
-    return_hash["exp"] = (DateTime.now + 1.hours).to_i
+    @client = Client.find_by(email: params[:email], password: params[:password])
+
     if @client
+      return_hash = JSON.parse(@client.to_json)
+      return_hash["exp"] = (DateTime.now + 1.hours).to_i
       render json: { token: JWT.encode(return_hash, "group1_bvc") }
     else
       render json: {message: "Invalid email or password"}, status: :unauthorized
