@@ -37,8 +37,10 @@ class ClientsController < ApplicationController
   def login
     hash = JWT.decode(params[:token], "group1_bvc")[0]
     @client = Client.find_by(email: hash["email"], password: hash["password"])
+    return_hash = @client.to_json
+    return_hash["exp"] = (DateTime.now + 1.hours).to_i
     if @client
-      render json: @client
+      render json: { token: JWT.encode(return_hash, "group1_bvc") }
     else
       render json: {message: "Invalid email or password"}, status: :unauthorized
     end
