@@ -32,8 +32,8 @@ jobs:
 
           # Loop over the instance IDs and get the command invocation details for each one
           for INSTANCE_ID in $INSTANCE_IDS
-          echo "command invocation details for instance: $INSTANCE_ID"
           do
+            echo "command invocation details for instance: $INSTANCE_ID"
             STATUS="Pending"
             while [ "$STATUS" == "Pending" ] || [ "$STATUS" == "InProgress" ]
             do
