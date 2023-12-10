@@ -13,6 +13,7 @@ jobs:
       AWS_REGION: us-east-1
       DOCUMENT_NAME: update-code
       SERVICE_NAME: clcm3102-group1-dental-office
+      AUTOSCALING_GROUP_NAME: clcm3102-group1-dental-office-auto-scaling-group
     steps:
       - uses: actions/checkout@v3
       - name: Configure AWS credentials
@@ -22,4 +23,28 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - name: Deploy
-        run: aws ssm send-command --document-name $DOCUMENT_NAME --targets Key=tag:Service,Values=$SERVICE_NAME
+        run: |
+          # Send the command and store the CommandId
+          COMMAND_ID=$(aws ssm send-command --document-name $DOCUMENT_NAME --targets Key=tag:Service,Values=$SERVICE_NAME --query "Command.CommandId" --output text)
+
+          # Get the instance IDs for the Auto Scaling group
+          INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $AUTOSCALING_GROUP_NAME --query "AutoScalingGroups[].Instances[].InstanceId" --output text)
+
+          # Loop over the instance IDs and get the command invocation details for each one
+          for INSTANCE_ID in $INSTANCE_IDS
+          echo "command invocation details for instance: $INSTANCE_ID"
+          do
+            STATUS="Pending"
+            while [ "$STATUS" == "Pending" ] || [ "$STATUS" == "InProgress" ]
+            do
+              sleep 5
+              INVOCATION=$(aws ssm get-command-invocation --command-id $COMMAND_ID --instance-id $INSTANCE_ID)
+              STATUS=$(echo $INVOCATION | jq -r '.Status')
+            done
+            if [ "$STATUS" == "Failed" ]
+            then
+              echo "Command failed on instance $INSTANCE_ID"
+              exit 1
+            fi
+            echo $INVOCATION
+          done
